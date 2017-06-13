@@ -4,12 +4,9 @@ import com.samsanort.yac4j.model.ProcessableContent;
 
 import java.util.concurrent.LinkedBlockingQueue;
 
-/**
- * Created by samu on 4/7/17.
- */
 public class ProcessableContentQueue implements Queue<ProcessableContent> {
 
-    private LinkedBlockingQueue<ProcessableContent> queue_;
+    private LinkedBlockingQueue<ProcessableContent> queue_ = new LinkedBlockingQueue<>();
 
     @Override
     public void enqueue(ProcessableContent processableContent) {
