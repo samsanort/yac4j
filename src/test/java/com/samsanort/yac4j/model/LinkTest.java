@@ -20,7 +20,8 @@ public class LinkTest {
         String[] urls = {
                 "file:////foo.txt",
                 "http://www.github.com",
-                "https://secure.whatever.org/somethinelse"
+                "https://secure.whatever.org/somethinelse",
+                "http://localhost:8080/index.html"
         };
         String sourceUrl = "http://fixed.url.edu";
 
@@ -41,12 +42,14 @@ public class LinkTest {
         String[] urls = {
                 "first.html",
                 "second",
-                "third.txt"
+                "third.txt",
+                "fourth"
         };
         String[] sourceUrls = {
                 "file:////foo",
                 "http://www.github.com",
-                "https://secure.whatever.org/somethinelse"
+                "https://secure.whatever.org/somethinelse",
+                "http://localhost:8080"
         };
 
         for (int i = 0; i < urls.length; i++) {
@@ -58,5 +61,4 @@ public class LinkTest {
             assertThat(testSubject.getAbsoluteUrl(), is(equalTo(sourceUrls[i] + "/" + urls[i])));
         }
     }
-
 }

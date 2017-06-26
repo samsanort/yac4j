@@ -1,13 +1,9 @@
 package com.samsanort.yac4j.model;
 
-import java.util.regex.Pattern;
-
 /**
  * Created by samu on 3/1/17.
  */
 public class Link {
-
-    private final static Pattern ABSOLUTE_LINK_PATTERN = Pattern.compile("^(?:(?:http[s]?://)|(?:file:////)|(?://))(?:[a-zA-Z0-9_-]+?\\.[a-zA-Z0-9_-]+?).*");
 
     private String absoluteUrl;
 
@@ -17,7 +13,7 @@ public class Link {
      */
     public Link(String url, String sourceUrl) {
 
-        if (ABSOLUTE_LINK_PATTERN.matcher(url).matches()) {
+        if (isAbsolute(url)) {
 
             absoluteUrl = url;
 
@@ -32,6 +28,17 @@ public class Link {
                 absoluteUrl = sourceUrl + "/" + url;
             }
         }
+    }
+
+    private boolean isAbsolute(String url) {
+
+        if (url.startsWith("http://") || url.startsWith("https://"))
+            return true;
+
+        if (url.startsWith("file:////"))
+            return true;
+
+        return false;
     }
 
     /**
