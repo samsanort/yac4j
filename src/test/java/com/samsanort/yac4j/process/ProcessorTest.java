@@ -5,6 +5,7 @@ import com.samsanort.yac4j.UrlEvaluator;
 import com.samsanort.yac4j.datastructure.Queue;
 import com.samsanort.yac4j.datastructure.TrackedUrlContainer;
 import com.samsanort.yac4j.model.ProcessableContent;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -57,11 +58,12 @@ public class ProcessorTest {
     }
 
     @Test
-    public void runCycle_contentIsDequeued_contentIsSentToPageProcessor() {
+    public void runCycle_dequeuedContentIsProcessable_contentIsSentToPageProcessor() {
 
         // Given
         ProcessableContent dequeued = aProcessableContentWithVisitableLinks();
         when(mockedProcessableContentQueue.dequeue()).thenReturn(dequeued);
+        when(mockedUrlEvaluator.isProcessable(dequeued.getUrl())).thenReturn(true);
 
         // When
         testSubject.runCycle();
@@ -69,6 +71,22 @@ public class ProcessorTest {
         // Then
         verify(mockedPageProcessor).process(dequeued.getContent());
     }
+
+    @Test
+    public void runCycle_dequeuedContentIsNotProcessable_contentIsNotSentToProcessor() throws Exception {
+
+        // Given
+        ProcessableContent dequeued = aProcessableContentWithVisitableLinks();
+        when(mockedProcessableContentQueue.dequeue()).thenReturn(dequeued);
+        when(mockedUrlEvaluator.isProcessable(dequeued.getUrl())).thenReturn(false);
+
+        // When
+        testSubject.runCycle();
+
+        // Then
+        verify(mockedPageProcessor, times(0)).process(dequeued.getContent());
+    }
+
 
     @Test
     public void runCycle_dequeuedContentDoesNotHaveVisitableLinks_noLinkIsRegisteredAsVisitable() {

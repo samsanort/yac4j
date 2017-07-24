@@ -45,7 +45,7 @@ public class Processor implements Cycle {
         if (processableContent != null) {
 
             extractLinks(processableContent);
-            processContent(processableContent);
+            processContentIfRequired(processableContent);
         }
     }
 
@@ -75,9 +75,16 @@ public class Processor implements Cycle {
         return (visitable && (!visited && !scheduled));
     }
 
-    private void processContent(ProcessableContent processableContent) {
+    private void processContentIfRequired(ProcessableContent processableContent) {
 
-        this.pageProcessor.process(processableContent.getContent());
+        final String url = processableContent.getUrl();
+        final boolean processable = urlEvaluator.isProcessable(url);
+
+        logger.trace("Is {} processable? {}", url, processable);
+
+        if(processable) {
+            this.pageProcessor.process(processableContent.getContent());
+        }
     }
 
     @Override
