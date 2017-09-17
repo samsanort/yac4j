@@ -4,6 +4,7 @@ import com.samsanort.yac4j.datastructure.Queue;
 import com.samsanort.yac4j.datastructure.TrackedUrlContainer;
 import com.samsanort.yac4j.model.ProcessableContent;
 import com.samsanort.yac4j.service.FetchService;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -13,9 +14,11 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.IsEqual.equalTo;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.BDDMockito.willThrow;
 import static org.mockito.Mockito.*;
 
 /**
@@ -89,6 +92,25 @@ public class FetcherTest {
         // Then
         verify(mockedQueue, times(0)).enqueue(ArgumentMatchers.any(ProcessableContent.class));
         verify(mockedTrackedUrlContainer).addVisitedUrl(URL);
+    }
+
+    @Test
+    public void runCycle_UncheckedException_finishesGracefully() throws Exception {
+
+        // Given
+        Exception captured = null;
+        willThrow(new RuntimeException("Mocked")).given(mockedTrackedUrlContainer).nextVisitableUrl();
+
+        // When
+        try {
+            testSubject.runCycle();
+
+        }catch(Exception e) {
+            captured = e;
+        }
+
+        // Then
+        assertThat(captured, is(nullValue()));
     }
 
 }

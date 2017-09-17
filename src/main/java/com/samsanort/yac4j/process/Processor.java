@@ -40,12 +40,18 @@ public class Processor implements Cycle {
     @Override
     public void runCycle() {
 
-        ProcessableContent processableContent = this.processableContentQueue.dequeue();
+        try {
 
-        if (processableContent != null) {
+            ProcessableContent processableContent = this.processableContentQueue.dequeue();
 
-            extractLinks(processableContent);
-            processContentIfRequired(processableContent);
+            if (processableContent != null) {
+
+                extractLinks(processableContent);
+                processContentIfRequired(processableContent);
+            }
+
+        } catch (Exception e) {
+            logger.error("Processor cycle error.", e);
         }
     }
 
@@ -82,7 +88,7 @@ public class Processor implements Cycle {
 
         logger.trace("Is {} processable? {}", url, processable);
 
-        if(processable) {
+        if (processable) {
             this.pageProcessor.process(processableContent.getContent());
         }
     }

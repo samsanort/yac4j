@@ -40,17 +40,23 @@ public class Fetcher implements Cycle {
     @Override
     public void runCycle() {
 
-        String url = this.trackedUrls.nextVisitableUrl();
+        try {
 
-        if (url != null) {
+            String url = this.trackedUrls.nextVisitableUrl();
 
-            String content = this.fetchService.fetchURLContent(url);
+            if (url != null) {
 
-            if (content != null && !content.isEmpty()) {
-                this.processableContentQueue.enqueue(new ProcessableContent(url, content));
+                String content = this.fetchService.fetchURLContent(url);
+
+                if (content != null && !content.isEmpty()) {
+                    this.processableContentQueue.enqueue(new ProcessableContent(url, content));
+                }
+
+                this.trackedUrls.addVisitedUrl(url);
             }
 
-            this.trackedUrls.addVisitedUrl(url);
+        } catch (Exception e) {
+            logger.error("Fetcher cycle error.", e);
         }
     }
 
