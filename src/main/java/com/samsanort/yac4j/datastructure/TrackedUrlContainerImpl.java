@@ -41,6 +41,11 @@ public class TrackedUrlContainerImpl implements TrackedUrlContainer {
     public synchronized void addVisitableUrl(String url) {
 
         this.visitableUrls.add(url);
+
+        logger.trace(
+                "Added new visitable site, {} registered (limit = {})",
+                this.visitableUrls.size(),
+                this.maxVisits);
     }
 
     public synchronized void addVisitedUrl(String url) {

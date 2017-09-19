@@ -75,10 +75,8 @@ public class Crawler {
      */
     public void stop() {
 
-        if (isCrawling()) {
-            logger.info("Crawler stop requested by user.");
-            stopCrawling();
-        }
+        logger.info("Crawler stop requested by user.");
+        stopCrawling();
     }
 
     /**
@@ -181,11 +179,14 @@ public class Crawler {
 
     private void stopCrawling() {
 
-        for (CycleRunner runner : this.cycleRunners_) {
-            runner.kill();
-        }
+        if (this.cycleRunners_ != null) {
 
-        this.cycleRunners_ = null;
+            for (CycleRunner runner : this.cycleRunners_) {
+                runner.kill();
+            }
+
+            this.cycleRunners_ = null;
+        }
     }
 
     /**

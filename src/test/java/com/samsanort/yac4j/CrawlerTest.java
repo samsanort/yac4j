@@ -111,6 +111,19 @@ public class CrawlerTest {
         assertThat(testSubject.isCrawling(), is(equalTo(false)));
     }
 
+    @Test
+    public void stop_notRunning_doesNothing() {
+
+        // Given
+        testSubject = new Crawler(aCrawlerConfig(), anUrlEvaluatorFactory(), aPageProcessorFactory());
+
+        // When
+        testSubject.stop();
+
+        // Then
+        assertThat(testSubject.isCrawling(), is(equalTo(false)));
+    }
+
 
     // ----------------------------------------------------------------------
 
