@@ -1,10 +1,12 @@
 package com.samsanort.yac4j.process;
 
+import com.samsanort.yac4j.UrlEvaluator;
 import com.samsanort.yac4j.datastructure.Queue;
 import com.samsanort.yac4j.datastructure.TrackedUrlContainer;
+import com.samsanort.yac4j.model.PageWithLinks;
 import com.samsanort.yac4j.model.ProcessableContent;
 import com.samsanort.yac4j.service.FetchService;
-import org.junit.Assert;
+import org.apache.commons.text.RandomStringGenerator;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -31,42 +33,47 @@ public class FetcherTest {
 
     @Mock
     private FetchService mockedFetchService;
+
     @Mock
     private TrackedUrlContainer mockedTrackedUrlContainer;
+
     @Mock
-    private Queue<ProcessableContent> mockedQueue;
+    private Queue<ProcessableContent> mockedProcessableContentQueue;
+
+    @Mock
+    private UrlEvaluator mockedUrlEvaluator;
 
     private static final String URL = "http://www.foo.bar";
     private static final String CONTENT = "<p> CONTENT </p>";
 
     @Before
     public void initTest() {
-        testSubject = new Fetcher(mockedFetchService, mockedTrackedUrlContainer, mockedQueue, 250);
+
+        testSubject =
+                new Fetcher(
+                        mockedFetchService,
+                        mockedTrackedUrlContainer,
+                        mockedProcessableContentQueue,
+                        mockedUrlEvaluator,
+                        250);
     }
 
     @Test
-    public void runCycle_existsUrlPointingToContent_contentIsEnqueuedAndUrlIsTracked() {
+    public void runCycle_containerHasVisitableUrl_urlContentIsFetchedAndVisitedUrlIsTracked() throws Exception {
 
         // Given
-
         when(mockedTrackedUrlContainer.nextVisitableUrl()).thenReturn(URL);
-        when(mockedFetchService.fetchURLContent(URL)).thenReturn(CONTENT);
 
         // When
         testSubject.runCycle();
 
         // Then
-
-        ArgumentCaptor<ProcessableContent> argument = ArgumentCaptor.forClass(ProcessableContent.class);
-        verify(mockedQueue).enqueue(argument.capture());
-        assertThat(argument.getValue().getUrl(), is(equalTo(URL)));
-        assertThat(argument.getValue().getContent(), is(equalTo(CONTENT)));
-
         verify(mockedTrackedUrlContainer).addVisitedUrl(URL);
+        verify(mockedFetchService).fetchURLContent(URL);
     }
 
     @Test
-    public void runCycle_trackedUrlContainerReturnsNull_nothingIsFetchedNorEnqueued() {
+    public void runCycle_containerHasNoMoreVisitableUrls_nothingIsFetched() {
 
         // Given
         when(mockedTrackedUrlContainer.nextVisitableUrl()).thenReturn(null);
@@ -75,12 +82,11 @@ public class FetcherTest {
         testSubject.runCycle();
 
         // Then
-        verify(mockedQueue, times(0)).enqueue(ArgumentMatchers.any(ProcessableContent.class));
-        verify(mockedTrackedUrlContainer, times(0)).addVisitedUrl(anyString());
+        verify(mockedFetchService, times(0)).fetchURLContent(anyString());
     }
 
     @Test
-    public void runCycle_fetcherServiceReturnsNull_nothingIsEnqueued() {
+    public void runCycle_fetchedContentIsNull_urlIsTracked() {
 
         // Given
         when(mockedTrackedUrlContainer.nextVisitableUrl()).thenReturn(URL);
@@ -90,8 +96,107 @@ public class FetcherTest {
         testSubject.runCycle();
 
         // Then
-        verify(mockedQueue, times(0)).enqueue(ArgumentMatchers.any(ProcessableContent.class));
         verify(mockedTrackedUrlContainer).addVisitedUrl(URL);
+    }
+
+    @Test
+    public void runCycle_fetchedContentIsNull_noContentIsEnqueued() {
+
+        // Given
+        when(mockedTrackedUrlContainer.nextVisitableUrl()).thenReturn(URL);
+        when(mockedFetchService.fetchURLContent(URL)).thenReturn(null);
+
+        // When
+        testSubject.runCycle();
+
+        // Then
+        verify(mockedProcessableContentQueue, times(0)).enqueue(ArgumentMatchers.any(ProcessableContent.class));
+    }
+
+    @Test
+    public void runCycle_fetchedContentIsFromNotProcessableUrl_nothingIsEnqueued() {
+
+        // Given
+        when(mockedTrackedUrlContainer.nextVisitableUrl()).thenReturn(URL);
+        when(mockedFetchService.fetchURLContent(URL)).thenReturn(CONTENT);
+        when(mockedUrlEvaluator.isProcessable(URL)).thenReturn(false);
+
+        // When
+        testSubject.runCycle();
+
+        // Then
+        verify(mockedProcessableContentQueue, times(0)).enqueue(ArgumentMatchers.any(ProcessableContent.class));
+    }
+
+    @Test
+    public void runCycle_fetchedContentIsProcessable_contentIsEnqueued() {
+
+        // Given
+        when(mockedTrackedUrlContainer.nextVisitableUrl()).thenReturn(URL);
+        when(mockedFetchService.fetchURLContent(URL)).thenReturn(CONTENT);
+        when(mockedUrlEvaluator.isProcessable(URL)).thenReturn(true);
+
+        // When
+        testSubject.runCycle();
+
+        // Then
+        ArgumentCaptor<ProcessableContent> argument = ArgumentCaptor.forClass(ProcessableContent.class);
+        verify(mockedProcessableContentQueue).enqueue(argument.capture());
+        assertThat(argument.getValue().getUrl(), is(equalTo(URL)));
+        assertThat(argument.getValue().getContent(), is(equalTo(CONTENT)));
+    }
+
+    @Test
+    public void runCycle_fetchedContentHasVisitableURLs_URLsAreAddedIntoTrackedUrlContainer() throws Exception {
+
+        // Given
+        String linkedUrl = aVisitableUrl();
+        PageWithLinks page = aPageWithLinksThatWillBeFetched(linkedUrl);
+
+        // When
+        testSubject.runCycle();
+
+        // Then
+        verify(mockedTrackedUrlContainer).addVisitableUrl(linkedUrl);
+    }
+
+    @Test
+    public void runCycle_fetchedContentDoesNotHaveVisitableURLs_noURLIsRegisteredAsVisitable() {
+
+        // Given
+        aFetchablePageWithoutVisitableLinks();
+
+        // When
+        testSubject.runCycle();
+
+        // Then
+        verify(mockedTrackedUrlContainer, times(0)).addVisitableUrl(anyString());
+    }
+
+    @Test
+    public void runCycle_fetchedContentHasURLAlreadyScheduledForVisiting_URLIsNotRegisteredAsVisitable() {
+
+        // Given
+        aFetchablePageWithLinkScheduledForVisiting();
+
+        // When
+        testSubject.runCycle();
+
+        // Then
+        verify(mockedTrackedUrlContainer, times(0)).addVisitableUrl(anyString());
+    }
+
+    @Test
+    public void runCycle_fetchedContentHasURLAlreadyVisited_URLIsNotRegisteredAsVisitable() {
+
+        // Given
+        aFetchablePageWithLinkAlreadyVisited();
+
+        // When
+        testSubject.runCycle();
+
+        // Then
+        verify(mockedTrackedUrlContainer, times(0)).addVisitableUrl(anyString());
     }
 
     @Test
@@ -105,12 +210,55 @@ public class FetcherTest {
         try {
             testSubject.runCycle();
 
-        }catch(Exception e) {
+        } catch (Exception e) {
             captured = e;
         }
 
         // Then
         assertThat(captured, is(nullValue()));
+    }
+
+    private PageWithLinks aFetchablePageWithoutVisitableLinks() {
+
+        return aPageWithLinksThatWillBeFetched(null);
+    }
+
+    private PageWithLinks aFetchablePageWithLinkAlreadyVisited() {
+
+        String urlAlreadyVisited = aVisitableUrl();
+
+        when(mockedTrackedUrlContainer.isAlreadyVisited(urlAlreadyVisited)).thenReturn(true);
+
+        return aPageWithLinksThatWillBeFetched(urlAlreadyVisited);
+    }
+
+    private PageWithLinks aFetchablePageWithLinkScheduledForVisiting() {
+
+        String urlWithVisitScheduled = aVisitableUrl();
+
+        when(mockedTrackedUrlContainer.isVisitAlreadyScheduled(urlWithVisitScheduled)).thenReturn(true);
+
+        return aPageWithLinksThatWillBeFetched(urlWithVisitScheduled);
+    }
+
+    private PageWithLinks aPageWithLinksThatWillBeFetched(String linkedUrl) {
+
+        String html = (linkedUrl == null ? "<html></html>" : "<html><a href=\"" + linkedUrl + "\">link</a></html>");
+
+        when(mockedTrackedUrlContainer.nextVisitableUrl()).thenReturn(URL);
+        when(mockedFetchService.fetchURLContent(URL)).thenReturn(html);
+
+        return new PageWithLinks(URL, html);
+    }
+
+    private String aVisitableUrl() {
+
+        String visitableUrl = "http://"
+                + new RandomStringGenerator.Builder().withinRange('a', 'z').build().generate(8);
+
+        when(mockedUrlEvaluator.isVisitable(visitableUrl)).thenReturn(true);
+
+        return visitableUrl;
     }
 
 }

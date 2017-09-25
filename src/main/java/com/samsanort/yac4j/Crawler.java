@@ -154,6 +154,8 @@ public class Crawler {
 
         this.cycleRunners_[this.cycleRunners_.length - 1] = createProcessorCycleRunner();
         new Thread(this.cycleRunners_[this.cycleRunners_.length - 1]).start();
+
+        Thread.sleep(10000);
     }
 
     private CycleRunner createFetcherCycleRunner() {
@@ -163,6 +165,7 @@ public class Crawler {
                         new FetchServiceImpl(this.connectionFactory),
                         this.trackedUrlContainer,
                         this.processableContentQueue,
+                        this.urlEvaluatorFactory.createInstance(),
                         this.config.getVisitDelay()));
     }
 
@@ -171,9 +174,7 @@ public class Crawler {
         return new CycleRunner(
                 new Processor(
                         this.processableContentQueue,
-                        this.trackedUrlContainer,
                         this.pageProcessorFactory.createInstance(),
-                        this.urlEvaluatorFactory.createInstance(),
                         this.config.getVisitDelay()));
     }
 

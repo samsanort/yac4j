@@ -1,6 +1,7 @@
 package com.samsanort.yac4j.model;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -14,7 +15,7 @@ public class PageWithLinks {
 
     private String htmlContent;
     private String url;
-    private List<Link> linkedUrls = new ArrayList();
+    private List<Link> linkedUrls;
 
     /**
      * @param htmlContent
@@ -23,14 +24,21 @@ public class PageWithLinks {
 
         this.url = url;
         this.htmlContent = htmlContent;
-        extractLinkedUrls();
     }
 
     public List<Link> getLinkedUrls() {
-        return this.linkedUrls;
+
+        if(this.linkedUrls == null) {
+            extractLinkedUrls();
+        }
+
+        return Collections.unmodifiableList(
+                this.linkedUrls);
     }
 
     private void extractLinkedUrls() {
+
+        this.linkedUrls = new ArrayList();
 
         Matcher matcher = LINK_PATTERN.matcher(this.htmlContent);
 
@@ -39,5 +47,13 @@ public class PageWithLinks {
             linkedUrls.add(
                     new Link(matcher.group(1), url));
         }
+    }
+
+    public String getHtmlContent() {
+        return htmlContent;
+    }
+
+    public String getUrl() {
+        return url;
     }
 }

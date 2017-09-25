@@ -9,7 +9,7 @@ import java.util.List;
 public class CrawlerConfig {
 
     private ArrayList<String> seeds = new ArrayList();
-    private int maxFetches = 2;
+    private int maxFetches = -1;
     private long visitDelay = 500L;
     private String proxyAddress;
     private int proxyPort = UNASSIGNED;

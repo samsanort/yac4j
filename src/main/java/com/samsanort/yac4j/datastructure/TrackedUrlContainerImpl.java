@@ -19,12 +19,7 @@ public class TrackedUrlContainerImpl implements TrackedUrlContainer {
 
     private int maxVisits;
 
-    /**
-     * @param maxVisits
-     */
-    public TrackedUrlContainerImpl(int maxVisits) {
-        this.maxVisits = maxVisits;
-    }
+    private int dequeuedVisitableUrls = 0;
 
     /**
      * @param maxVisits
@@ -32,19 +27,43 @@ public class TrackedUrlContainerImpl implements TrackedUrlContainer {
      */
     public TrackedUrlContainerImpl(int maxVisits, List<String> seeds) {
 
-        this(maxVisits);
-        for (String url : seeds) {
-            this.addVisitableUrl(url);
+        this(maxVisits, seeds, new HashSet<String>(), new HashSet<String>());
+    }
+
+    TrackedUrlContainerImpl(int maxVisits, List<String> seeds, Set<String> visitableUrls, Set<String> visitedUrls) {
+
+        this.maxVisits = maxVisits;
+        this.visitableUrls = visitableUrls;
+        this.visitedUrls = visitedUrls;
+
+        if (seeds != null) {
+            for (String url : seeds) {
+                this.addVisitableUrl(url);
+            }
         }
     }
 
     public synchronized void addVisitableUrl(String url) {
 
+        if (this.maxVisits > 0) {
+
+            if (maxDequeuesReached()) {
+
+                logger.trace(
+                        "Visitable site not added: {} visitable URLs already dequeued (limit = {})",
+                        this.visitableUrls.size(),
+                        this.maxVisits);
+
+                return;
+            }
+        }
+
         this.visitableUrls.add(url);
 
         logger.trace(
-                "Added new visitable site, {} registered (limit = {})",
+                "Added new visitable site (registered: {}, dequeued: {}, limit: {}).",
                 this.visitableUrls.size(),
+                this.dequeuedVisitableUrls,
                 this.maxVisits);
     }
 
@@ -53,17 +72,20 @@ public class TrackedUrlContainerImpl implements TrackedUrlContainer {
         this.visitedUrls.add(url);
 
         logger.trace(
-                "Added new visited site, {} registered (limit = {})",
+                "Added new visited site (registered: {}, dequeued: {}, limit: {}).",
                 this.visitedUrls.size(),
+                this.dequeuedVisitableUrls,
                 this.maxVisits);
     }
 
     public synchronized String nextVisitableUrl() {
 
-        if (willReturnVisitableUrl()) {
+        if (!this.visitableUrls.isEmpty()) {
 
             String url = this.visitableUrls.iterator().next();
             this.visitableUrls.remove(url);
+
+            increaseNumOfDequeuedUrls();
 
             logger.trace(
                     "Returning URL {}, {} still available.",
@@ -94,16 +116,14 @@ public class TrackedUrlContainerImpl implements TrackedUrlContainer {
             return false;
         }
 
-        if (this.visitedUrls.size() >= this.maxVisits) {
-
-            logger.trace(
-                    "Size of visited URLs ({}) exceeds max allowed ({}).",
-                    this.visitedUrls.size(),
-                    this.maxVisits);
-
-            return false;
-        }
-
         return true;
+    }
+
+    boolean maxDequeuesReached() {
+        return this.dequeuedVisitableUrls >= this.maxVisits;
+    }
+
+    void increaseNumOfDequeuedUrls() {
+        this.dequeuedVisitableUrls++;
     }
 }
