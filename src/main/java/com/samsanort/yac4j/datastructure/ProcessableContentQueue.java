@@ -17,7 +17,7 @@ public class ProcessableContentQueue implements Queue<ProcessableContent> {
 
         this.queue_.add(processableContent);
 
-        logger.trace("New content queued, queue size is {}", queue_.size());
+        logger.debug("New content queued, queue size is {}", queue_.size());
     }
 
     @Override
@@ -26,7 +26,7 @@ public class ProcessableContentQueue implements Queue<ProcessableContent> {
         ProcessableContent retVal = this.queue_.poll();
 
         if(retVal != null) {
-            logger.trace("Content dequeued, queue size is {}", queue_.size());
+            logger.debug("Content dequeued, queue size is {}", queue_.size());
         }
 
         return retVal;

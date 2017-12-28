@@ -62,7 +62,7 @@ public class CycleRunner implements Runnable {
         return this.state_;
     }
 
-    private void setState(State state) {
+    private synchronized void setState(State state) {
         this.state_ = state;
     }
 

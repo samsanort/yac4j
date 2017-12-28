@@ -27,7 +27,7 @@ public class FetchServiceImpl implements FetchService {
     @Override
     public String fetchURLContent(String pageUrl) {
 
-        logger.debug("Fetching URL {}", pageUrl);
+        logger.trace("Fetching URL {}", pageUrl);
 
         try {
 

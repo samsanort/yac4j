@@ -80,7 +80,7 @@ public class Fetcher implements Cycle {
     private void extractLinks(String url, String content) {
 
         PageWithLinks pageWithLinks = new PageWithLinks(url, content);
-        logger.debug("Analysing page with {} links.", pageWithLinks.getLinkedUrls().size());
+        logger.trace("Analysing page with {} links.", pageWithLinks.getLinkedUrls().size());
 
         for (Link linkedUrl : pageWithLinks.getLinkedUrls()) {
 

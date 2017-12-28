@@ -90,6 +90,9 @@ public class Crawler {
         if (this.trackedUrlContainer.willReturnVisitableUrl())
             return true;
 
+        if (!this.processableContentQueue.isEmpty())
+            return true;
+
         for (CycleRunner cycleRunner : this.cycleRunners_) {
             if (cycleRunner.getState().equals(CycleRunner.State.WORKING)) {
                 return true;
