@@ -139,10 +139,10 @@ public class Crawler {
     private ConnectionFactory buildConnectionFactory() {
 
         if (this.config.getProxyAddress() != null && this.config.getProxyPort() != CrawlerConfig.UNASSIGNED) {
-            return new ConnectionFactoryImpl(config.getProxyAddress(), config.getProxyPort());
+            return new ConnectionFactoryImpl(config.getProxyAddress(), config.getProxyPort(), config.getUserAgent());
 
         } else {
-            return new ConnectionFactoryImpl();
+            return new ConnectionFactoryImpl(config.getUserAgent());
         }
     }
 

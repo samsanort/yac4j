@@ -11,6 +11,7 @@ import java.net.SocketAddress;
 public class ConnectionFactoryImpl implements ConnectionFactory {
 
     private Proxy proxy;
+    private String userAgent;
 
     /**
      * C'tor for obtaining connections through a proxy
@@ -18,16 +19,18 @@ public class ConnectionFactoryImpl implements ConnectionFactory {
      * @param proxyAddress
      * @param proxyPort
      */
-    public ConnectionFactoryImpl(String proxyAddress, int proxyPort) {
+    public ConnectionFactoryImpl(String proxyAddress, int proxyPort, String userAgent) {
 
         SocketAddress addr = new InetSocketAddress(proxyAddress, proxyPort);
         this.proxy = new Proxy(Proxy.Type.HTTP, addr);
+        this.userAgent = userAgent;
     }
 
     /**
-     * C'tor for use no proxy
+     * C'tor for direct connections
      */
-    public ConnectionFactoryImpl() {
+    public ConnectionFactoryImpl(String userAgent) {
+        this.userAgent = userAgent;
     }
 
     /**
@@ -37,10 +40,10 @@ public class ConnectionFactoryImpl implements ConnectionFactory {
     public Connection obtainConnection(String strUrl) throws IOException {
 
         if (this.proxy != null) {
-            return new ConnectionImpl(strUrl, this.proxy);
+            return new ConnectionImpl(strUrl, this.proxy, this.userAgent);
 
         } else {
-            return new ConnectionImpl(strUrl, Proxy.NO_PROXY);
+            return new ConnectionImpl(strUrl, Proxy.NO_PROXY, this.userAgent);
         }
     }
 }

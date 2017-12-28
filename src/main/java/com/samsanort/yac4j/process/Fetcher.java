@@ -65,6 +65,8 @@ public class Fetcher implements Cycle {
 
     private void visit(String url) {
 
+        logger.debug("Fetching {}", url);
+
         String content = this.fetchService.fetchURLContent(url);
 
         if (content != null && !content.isEmpty()) {

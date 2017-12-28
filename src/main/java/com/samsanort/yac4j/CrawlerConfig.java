@@ -14,6 +14,7 @@ public class CrawlerConfig {
     private String proxyAddress;
     private int proxyPort = UNASSIGNED;
     private int workers = 1;
+    private String userAgent = "yac4j";
 
     public static final int UNASSIGNED = -1;
 
@@ -107,5 +108,13 @@ public class CrawlerConfig {
      */
     public void setWorkers(int workers) {
         this.workers = workers;
+    }
+
+    public String getUserAgent() {
+        return userAgent;
+    }
+
+    public void setUserAgent(String userAgent) {
+        this.userAgent = userAgent;
     }
 }

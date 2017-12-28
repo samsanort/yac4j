@@ -14,15 +14,17 @@ public class ConnectionImpl implements Connection {
 
     private Proxy proxy;
     private String url;
+    private String userAgent;
 
     /**
      * @param url
      * @param proxy
      */
-    public ConnectionImpl(String url, Proxy proxy) {
+    public ConnectionImpl(String url, Proxy proxy, String userAgent) {
 
         this.url = url;
         this.proxy = proxy;
+        this.userAgent = userAgent;
     }
 
     @Override
@@ -44,11 +46,17 @@ public class ConnectionImpl implements Connection {
 
         URL url = new URL(this.url);
 
+        URLConnection conn;
+
         if (this.proxy != null) {
-            return url.openConnection(this.proxy);
+            conn = url.openConnection(this.proxy);
 
         } else {
-            return url.openConnection(Proxy.NO_PROXY);
+            conn = url.openConnection(Proxy.NO_PROXY);
         }
+
+        conn.setRequestProperty("User-Agent", userAgent);
+
+        return conn;
     }
 }
