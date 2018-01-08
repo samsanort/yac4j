@@ -3,6 +3,7 @@ package com.samsanort.yac4j.connection;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
 import java.net.Proxy;
 import java.net.URL;
 import java.net.URLConnection;
@@ -31,15 +32,26 @@ public class ConnectionImpl implements Connection {
     public String readAll() throws IOException {
 
         URLConnection con = this.openConnection();
-        BufferedReader br = new BufferedReader(new InputStreamReader(con.getInputStream()));
 
-        StringBuilder strBld = new StringBuilder();
-        String line;
-        while ((line = br.readLine()) != null) {
-            strBld.append(line).append("\n");
+        InputStreamReader isr;
+        try {
+            isr = new InputStreamReader(con.getInputStream(), con.getContentEncoding());
+
+        } catch(NullPointerException | UnsupportedEncodingException e) {
+            isr = new InputStreamReader(con.getInputStream());
         }
 
-        return strBld.toString();
+        try(BufferedReader br = new BufferedReader(isr)) {
+
+            StringBuilder strBld = new StringBuilder();
+            String line;
+
+            while ((line = br.readLine()) != null) {
+                strBld.append(line).append("\n");
+            }
+
+            return strBld.toString();
+        }
     }
 
     private URLConnection openConnection() throws IOException {

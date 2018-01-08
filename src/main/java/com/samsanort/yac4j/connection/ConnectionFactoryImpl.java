@@ -37,7 +37,7 @@ public class ConnectionFactoryImpl implements ConnectionFactory {
      * @param strUrl
      * @return
      */
-    public Connection obtainConnection(String strUrl) throws IOException {
+    public Connection obtainConnection(String strUrl) {
 
         if (this.proxy != null) {
             return new ConnectionImpl(strUrl, this.proxy, this.userAgent);

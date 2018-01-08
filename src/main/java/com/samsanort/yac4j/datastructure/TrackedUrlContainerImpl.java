@@ -49,7 +49,7 @@ public class TrackedUrlContainerImpl implements TrackedUrlContainer {
 
             if (maxDequeuesReached()) {
 
-                logger.trace(
+                logger.debug(
                         "Visitable site not added: {} visitable URLs already dequeued (limit = {})",
                         this.visitableUrls.size(),
                         this.maxVisits);
@@ -60,7 +60,7 @@ public class TrackedUrlContainerImpl implements TrackedUrlContainer {
 
         this.visitableUrls.add(url);
 
-        logger.trace(
+        logger.debug(
                 "Added new visitable site (registered: {}, dequeued: {}, limit: {}).",
                 this.visitableUrls.size(),
                 this.dequeuedVisitableUrls,

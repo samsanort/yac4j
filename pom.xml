@@ -6,7 +6,7 @@
 
     <groupId>com.samsanort</groupId>
     <artifactId>yac4j</artifactId>
-    <version>1.5.4</version>
+    <version>1.5.7</version>
 
     <build>
         <plugins>
