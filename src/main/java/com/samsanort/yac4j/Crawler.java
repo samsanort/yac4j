@@ -2,10 +2,7 @@ package com.samsanort.yac4j;
 
 import com.samsanort.yac4j.connection.ConnectionFactory;
 import com.samsanort.yac4j.connection.ConnectionFactoryImpl;
-import com.samsanort.yac4j.datastructure.ProcessableContentQueue;
-import com.samsanort.yac4j.datastructure.Queue;
-import com.samsanort.yac4j.datastructure.TrackedUrlContainer;
-import com.samsanort.yac4j.datastructure.TrackedUrlContainerImpl;
+import com.samsanort.yac4j.datastructure.*;
 import com.samsanort.yac4j.model.ProcessableContent;
 import com.samsanort.yac4j.process.CycleRunner;
 import com.samsanort.yac4j.process.Fetcher;
@@ -30,6 +27,7 @@ public class Crawler {
     private TrackedUrlContainer trackedUrlContainer;
     private ConnectionFactory connectionFactory;
     private Queue<ProcessableContent> processableContentQueue;
+    private UrlRepository urlRepository;
 
     // internal
     private CycleRunner[] cycleRunners_;
@@ -44,11 +42,26 @@ public class Crawler {
             UrlEvaluatorFactory urlEvaluatorFactory,
             PageProcessorFactory pageProcessorFactory) {
 
+        this(config, urlEvaluatorFactory, pageProcessorFactory, null);
+    }
+
+    /**
+     * @param config
+     * @param urlEvaluatorFactory
+     * @param pageProcessorFactory
+     */
+    public Crawler(
+            CrawlerConfig config,
+            UrlEvaluatorFactory urlEvaluatorFactory,
+            PageProcessorFactory pageProcessorFactory,
+            UrlRepository urlRepository) {
+
         this.validateCtorArgs(config, urlEvaluatorFactory, pageProcessorFactory);
 
         this.config = config;
         this.urlEvaluatorFactory = urlEvaluatorFactory;
         this.pageProcessorFactory = pageProcessorFactory;
+        this.urlRepository = urlRepository;
     }
 
     /**
@@ -130,7 +143,10 @@ public class Crawler {
         }
 
         if (this.trackedUrlContainer == null) {
-            this.trackedUrlContainer = new TrackedUrlContainerImpl(config.getMaxFetches(), config.getSeeds());
+            this.trackedUrlContainer =
+                    this.urlRepository == null
+                            ? new EphimeralTrackedUrlContainer(config.getMaxFetches(), config.getSeeds())
+                            : new PersistentTrackedUrlContainer(config.getSeeds(), this.urlRepository);
         }
 
         this.cycleRunners_ = new CycleRunner[config.getWorkers() + 1];

@@ -22,9 +22,9 @@ import static org.mockito.Mockito.verify;
  * Created by samu on 9/25/17.
  */
 @RunWith(MockitoJUnitRunner.class)
-public class TrackedUrlContainerImplTest {
+public class EphimeralTrackedUrlContainerTest {
 
-    private TrackedUrlContainerImpl testSubject;
+    private EphimeralTrackedUrlContainer testSubject;
 
     @Mock
     private Set<String> visitableUrls;
@@ -36,7 +36,7 @@ public class TrackedUrlContainerImplTest {
     public void init() {
 
         this.testSubject =
-                new TrackedUrlContainerImpl(2, null, visitableUrls, visitedUrls);
+                new EphimeralTrackedUrlContainer(2, null, visitableUrls, visitedUrls);
     }
 
     @Test
@@ -70,7 +70,7 @@ public class TrackedUrlContainerImplTest {
     public void addVisitableUrl_maxVisitsReached_doesNotAddVisitableUrl() throws Exception {
 
         // Given
-        TrackedUrlContainerImpl spiedTestSubject = Mockito.spy(testSubject);
+        EphimeralTrackedUrlContainer spiedTestSubject = Mockito.spy(testSubject);
         willReturn(true).given(spiedTestSubject).maxDequeuesReached();
         String urlToNotAdd = "url";
 

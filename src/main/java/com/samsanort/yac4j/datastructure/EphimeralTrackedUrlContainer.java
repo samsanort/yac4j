@@ -10,9 +10,9 @@ import java.util.Set;
 /**
  * Created by samu on 3/4/17.
  */
-public class TrackedUrlContainerImpl implements TrackedUrlContainer {
+public class EphimeralTrackedUrlContainer implements TrackedUrlContainer {
 
-    private static final Logger logger = LoggerFactory.getLogger(TrackedUrlContainerImpl.class);
+    private static final Logger logger = LoggerFactory.getLogger(EphimeralTrackedUrlContainer.class);
 
     private Set<String> visitableUrls = new HashSet();
     private Set<String> visitedUrls = new HashSet();
@@ -25,12 +25,12 @@ public class TrackedUrlContainerImpl implements TrackedUrlContainer {
      * @param maxVisits
      * @param seeds
      */
-    public TrackedUrlContainerImpl(int maxVisits, List<String> seeds) {
+    public EphimeralTrackedUrlContainer(int maxVisits, List<String> seeds) {
 
         this(maxVisits, seeds, new HashSet<String>(), new HashSet<String>());
     }
 
-    TrackedUrlContainerImpl(int maxVisits, List<String> seeds, Set<String> visitableUrls, Set<String> visitedUrls) {
+    EphimeralTrackedUrlContainer(int maxVisits, List<String> seeds, Set<String> visitableUrls, Set<String> visitedUrls) {
 
         this.maxVisits = maxVisits;
         this.visitableUrls = visitableUrls;
