@@ -17,6 +17,7 @@ public class Fetcher implements Cycle {
 
     private static final Logger logger = LoggerFactory.getLogger(Fetcher.class);
 
+    private String rootUrl;
     private FetchService fetchService;
     private TrackedUrlContainer trackedUrls;
     private Queue<ProcessableContent> processableContentQueue;
@@ -24,6 +25,7 @@ public class Fetcher implements Cycle {
     private long delay;
 
     /**
+     * @param rootUrl
      * @param fetchService
      * @param trackedUrls
      * @param processableContentQueue
@@ -31,12 +33,14 @@ public class Fetcher implements Cycle {
      * @param delay
      */
     public Fetcher(
+            String rootUrl,
             FetchService fetchService,
             TrackedUrlContainer trackedUrls,
             Queue<ProcessableContent> processableContentQueue,
             UrlEvaluator urlEvaluator,
             long delay) {
 
+        this.rootUrl = rootUrl;
         this.fetchService = fetchService;
         this.trackedUrls = trackedUrls;
         this.processableContentQueue = processableContentQueue;
@@ -81,7 +85,7 @@ public class Fetcher implements Cycle {
 
     private void extractLinks(String url, String content) {
 
-        PageWithLinks pageWithLinks = new PageWithLinks(url, content);
+        PageWithLinks pageWithLinks = new PageWithLinks(rootUrl, url, content);
         logger.trace("Analysing page with {} links.", pageWithLinks.getLinkedUrls().size());
 
         for (Link linkedUrl : pageWithLinks.getLinkedUrls()) {

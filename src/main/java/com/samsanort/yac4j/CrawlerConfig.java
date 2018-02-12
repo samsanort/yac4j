@@ -8,6 +8,7 @@ import java.util.List;
  */
 public class CrawlerConfig {
 
+    private String siteRootUrl;
     private ArrayList<String> seeds = new ArrayList();
     private int maxFetches = -1;
     private long visitDelay = 500L;
@@ -23,8 +24,15 @@ public class CrawlerConfig {
      */
     public CrawlerConfig(String siteUrl) {
 
+        siteRootUrl = siteUrl;
         this.addSeed(siteUrl);
     }
+
+    /**
+     *
+     * @return
+     */
+    public String getSiteRootUrl() {return this.siteRootUrl; }
 
     /**
      * @param url

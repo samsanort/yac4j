@@ -19,6 +19,7 @@ public class PageWithLinksTest {
     public void ctor_contentHasLinks_getLinkedUrlsReturnsLinks() {
 
         // Given
+        String rootUrl = "http://root.url";
         String url = "http://foo.bar";
         String link1 = "page1.html";
         String link2 = "http://www.something.com";
@@ -27,7 +28,7 @@ public class PageWithLinksTest {
         content = content.replaceFirst("@2@", link2);
 
         // When
-        testSubject = new PageWithLinks(url, content);
+        testSubject = new PageWithLinks(rootUrl, url, content);
         List<Link> links = testSubject.getLinkedUrls();
 
         // Then

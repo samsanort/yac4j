@@ -15,13 +15,15 @@ public class PageWithLinks {
 
     private String htmlContent;
     private String url;
+    private String rootUrl;
     private List<Link> linkedUrls;
 
     /**
      * @param htmlContent
      */
-    public PageWithLinks(String url, String htmlContent) {
+    public PageWithLinks(String rootUrl, String url, String htmlContent) {
 
+        this.rootUrl = rootUrl;
         this.url = url;
         this.htmlContent = htmlContent;
     }
@@ -45,12 +47,8 @@ public class PageWithLinks {
         while (matcher.find()) {
 
             linkedUrls.add(
-                    new Link(matcher.group(1), url));
+                    new Link(rootUrl, matcher.group(1), url));
         }
-    }
-
-    public String getHtmlContent() {
-        return htmlContent;
     }
 
     public String getUrl() {

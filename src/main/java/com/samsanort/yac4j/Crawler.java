@@ -181,6 +181,7 @@ public class Crawler {
 
         return new CycleRunner(
                 new Fetcher(
+                        this.config.getSiteRootUrl(),
                         new FetchServiceImpl(this.connectionFactory),
                         this.trackedUrlContainer,
                         this.processableContentQueue,

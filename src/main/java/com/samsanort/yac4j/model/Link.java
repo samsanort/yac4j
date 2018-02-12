@@ -11,7 +11,7 @@ public class Link {
      * @param url
      * @param sourceUrl
      */
-    public Link(String url, String sourceUrl) {
+    public Link(String rootUrl, String url, String sourceUrl) {
 
         if (isAbsolute(url)) {
 
@@ -19,13 +19,25 @@ public class Link {
 
         } else {
 
-            if (sourceUrl.endsWith("/") || url.startsWith("/")) {
+            if(url.startsWith("/")) {
 
-                absoluteUrl = sourceUrl + url;
+                if(rootUrl.endsWith("/")) {
+                    absoluteUrl = rootUrl + url.substring(1);
+
+                } else {
+                    absoluteUrl = rootUrl + url;
+                }
 
             } else {
 
-                absoluteUrl = sourceUrl + "/" + url;
+                if (sourceUrl.endsWith("/") || url.startsWith("/")) {
+
+                    absoluteUrl = sourceUrl + url;
+
+                } else {
+
+                    absoluteUrl = sourceUrl + "/" + url;
+                }
             }
         }
     }

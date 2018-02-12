@@ -23,12 +23,13 @@ public class LinkTest {
                 "https://secure.whatever.org/somethinelse",
                 "http://localhost:8080/index.html"
         };
-        String sourceUrl = "http://fixed.url.edu";
+        String sourceUrl = "http://fixed.source.url.edu";
+        String rootUrl = "http://root.url.com";
 
         for (String url : urls) {
 
             // When
-            testSubject = new Link(url, sourceUrl);
+            testSubject = new Link(rootUrl, url, sourceUrl);
 
             // Then
             assertThat(testSubject.getAbsoluteUrl(), is(equalTo(url)));
@@ -36,7 +37,7 @@ public class LinkTest {
     }
 
     @Test
-    public void ctor_urlIsRelative_getAbsoluteUrlReturnsSourceUrlPlusUrl() {
+    public void ctor_urlIsRelativeNotStartingWithSlash_getAbsoluteUrlReturnsSourceUrlPlusUrl() {
 
         // Given
         String[] urls = {
@@ -51,14 +52,45 @@ public class LinkTest {
                 "https://secure.whatever.org/somethinelse",
                 "http://localhost:8080"
         };
+        String rootUrl = "http://root.url.com";
 
         for (int i = 0; i < urls.length; i++) {
 
             // When
-            testSubject = new Link(urls[i], sourceUrls[i]);
+            testSubject = new Link(rootUrl, urls[i], sourceUrls[i]);
 
             // Then
             assertThat(testSubject.getAbsoluteUrl(), is(equalTo(sourceUrls[i] + "/" + urls[i])));
+        }
+    }
+
+    @Test
+    public void ctor_urlIsRelativeStartingWithSlash_getAbsoluteUrlReturnsRootUrlPlusUrl() {
+
+        // Given
+        String root = "http://root.url";
+        String[] roots = {
+                root,
+                root + "/"
+        };
+
+        String[] sources = {
+                "http://first.source",
+                "https://second.source/url/"
+        };
+
+        String[] urls = {
+                "/first.html",
+                "/second",
+        };
+
+        for (int i = 0; i < urls.length; i++) {
+
+            // When
+            testSubject = new Link(roots[i], urls[i], sources[i]);
+
+            // Then
+            assertThat(testSubject.getAbsoluteUrl(), is(equalTo(root + urls[i])));
         }
     }
 }

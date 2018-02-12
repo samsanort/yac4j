@@ -43,6 +43,7 @@ public class FetcherTest {
     @Mock
     private UrlEvaluator mockedUrlEvaluator;
 
+    private static final String ROOT_URL = "http://root";
     private static final String URL = "http://www.foo.bar";
     private static final String CONTENT = "<p> CONTENT </p>";
 
@@ -51,6 +52,7 @@ public class FetcherTest {
 
         testSubject =
                 new Fetcher(
+                        ROOT_URL,
                         mockedFetchService,
                         mockedTrackedUrlContainer,
                         mockedProcessableContentQueue,
@@ -248,7 +250,7 @@ public class FetcherTest {
         when(mockedTrackedUrlContainer.nextVisitableUrl()).thenReturn(URL);
         when(mockedFetchService.fetchURLContent(URL)).thenReturn(html);
 
-        return new PageWithLinks(URL, html);
+        return new PageWithLinks(ROOT_URL, URL, html);
     }
 
     private String aVisitableUrl() {
